@@ -1,45 +1,125 @@
+const { validationResult } = require('express-validator');
+const userModel = require('../models/userModel');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 let users = [{
-    email: 'user1@gmail.com',
-    userName: 'user1'
-  },
-  { email: 'user2@gmail.com',
-    userName: 'user2'
-  }
+  email: 'user1@gmail.com',
+  userName: 'user1'
+},
+{
+  email: 'user2@gmail.com',
+  userName: 'user2'
+}
 ]
 
-function allUser(req, res){
-  res.json(users).status(200);
+async function allUser(req, res) {
+  let dbUsers = await userModel.find();
+  res.json(dbUsers).status(200);
 }
 
-function registerUser(req, res){ //recieve the data form frontend
-    const {
-        email,username,password,
-    } = req.body;
+async function createUser(req, res, next) {
 
-    users.push({ email,username,password })
+  const {
+    email,
+    username,
+    phone,
+  } = req.body;
 
-    return res.status(201).json([ //response the data
-        req.body,
-        users
-    ]);
+  let newUser = await new userModel({
+    email,
+    username,
+    phone,
+  }).save();
+
+  res.status(201).json([
+    req.body,
+    users
+  ])
+}
+
+// register a new user
+async function registerUser(req, res, next) { //recieve the data form frontend 
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      errors: errors.array()
+    });
+  }
+
+  const {
+    email, username, password,
+  } = req.body;
+
+  let hashPassword = await bcrypt.hash(password, 10);
+
+  let newUser = await new userModel({
+    email, username,
+    password: hashPassword,
+  }).save();
+
+  return res.status(201).json(newUser);
+}
+
+// login previous user
+async function loginUser(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      errors: errors.array()
+    });
+  }
+
+  email = req.body.email;
+  password = req.body.password;
+
+  let user = await userModel.findOne({
+    email
+  });
+
+  if (user) {
+    // checking password
+    let checkPass = await bcrypt.compare(password, user.password);
+    if (checkPass) {
+      const { email, username, phone, _id } = user;
+      let token = await jwt.sign({ email, username, _id }, 'do_not_share');
+      return res.status(200).json({
+        email, username, phone, token
+      });
+    } else {
+      let errors = {
+        errors: [{
+          param: 'password',
+          msg: 'Password Incorrect'
+        }],
+        msg: 'Validation Error'
+      };
+      return res.status(422).json(errors);
+    }
+  } else {
+    return res.status(404).json("User Not Found");
+  }
 }
 
 //finding the data
-function getUserByEmail(req, res, next){
-  email = req.params.email;
-  let result = users.find(i=>i.email === email);
-  res.json(result).status(200);
+async function getUserByEmail(req, res, next) {
+  id = req.params.id;
+  // let result = users.find(i => i.email === email);
+  let user = await userModel.findById(id);
+  res.json(user).status(200);
 }
 
 //delete the data
-function deleteUserByEmail(req, res, next){
+function deleteUserByEmail(req, res, next) {
   email = req.params.email;
-  let index = users.findIndex(i=>i.email === email);
-  users.splice(index,1)
+  let index = users.findIndex(i => i.email === email);
+  users.splice(index, 1)
   res.json(users).status(200);
 }
 
 exports.allUser = allUser;
+exports.createUser = createUser;
 exports.registerUser = registerUser;
+exports.loginUser = loginUser;
 exports.getUserByEmail = getUserByEmail;
 exports.deleteUserByEmail = deleteUserByEmail;
