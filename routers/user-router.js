@@ -67,6 +67,8 @@ router.post('/register',
 
 router.use(authMiddleWare);
 
+router.get('/check-user/:id', userController.checkUser) 
+
 router.get('/get/:id', userController.getUserByEmail) 
 
 router.post('/update/:id', (req, res) => {

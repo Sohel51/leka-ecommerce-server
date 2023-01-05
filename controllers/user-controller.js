@@ -58,7 +58,9 @@ async function registerUser(req, res, next) { //recieve the data form frontend
     password: hashPassword,
   }).save();
 
-  return res.status(201).json(newUser);
+  let token = await jwt.sign({ email, username, _id: newUser._id }, 'do_not_share');
+
+  return res.status(201).json({ email, username, role: newUser.role, token, });
 }
 
 // login previous user
@@ -81,10 +83,10 @@ async function loginUser(req, res, next) {
     // checking password
     let checkPass = await bcrypt.compare(password, user.password);
     if (checkPass) {
-      const { email, username, phone, _id } = user;
+      const { email, username, phone, role, _id, } = user;
       let token = await jwt.sign({ email, username, _id }, 'do_not_share');
       return res.status(200).json({
-        email, username, phone, token
+        email, username, role, phone, token
       });
     } else {
       let errors = {
@@ -106,7 +108,18 @@ async function getUserByEmail(req, res, next) {
   id = req.params.id;
   // let result = users.find(i => i.email === email);
   let user = await userModel.findById(id);
-  res.json(user).status(200);
+  res.status(200).json({ user, data: req.userData });
+}
+
+async function checkUser(req, res, next) {
+  id = req.userData._id;
+  let user = await userModel.findById(id);
+  res.status(200).json({
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    phone: user.phone,
+  });
 }
 
 //delete the data
@@ -114,7 +127,7 @@ function deleteUserByEmail(req, res, next) {
   email = req.params.email;
   let index = users.findIndex(i => i.email === email);
   users.splice(index, 1)
-  res.json(users).status(200);
+  res.status(200).json(users);
 }
 
 exports.allUser = allUser;
@@ -122,4 +135,5 @@ exports.createUser = createUser;
 exports.registerUser = registerUser;
 exports.loginUser = loginUser;
 exports.getUserByEmail = getUserByEmail;
+exports.checkUser = checkUser;
 exports.deleteUserByEmail = deleteUserByEmail;
