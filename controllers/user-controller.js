@@ -122,6 +122,10 @@ async function checkUser(req, res, next) {
   });
 }
 
+async function checkUserAuth(req, res, next) {
+  console.log(req.userData);
+}
+
 //delete the data
 function deleteUserByEmail(req, res, next) {
   email = req.params.email;
@@ -136,4 +140,5 @@ exports.registerUser = registerUser;
 exports.loginUser = loginUser;
 exports.getUserByEmail = getUserByEmail;
 exports.checkUser = checkUser;
+exports.checkUserAuth = checkUserAuth;
 exports.deleteUserByEmail = deleteUserByEmail;
