@@ -7,6 +7,7 @@ const cors = require('cors'); //installing cors
 const formData = require('express-form-data'); //installing formData
 
 const userRouter = require('./routers/user-router'); //Link the router
+const categoryRouter = require('./routers/category-router'); //Link the router
 const productRouter = require('./routers/product-router'); //Another router
 
 app.set('json spaces', 4)
@@ -16,6 +17,7 @@ app.use(formData.parse()); //using parse
 app.use(cors()); //using cors
 
 app.use('/user', userRouter); //connect the router
+app.use('/category', categoryRouter); //connect the router
 
 mongoose.set('strictQuery', true);
 mongoose
