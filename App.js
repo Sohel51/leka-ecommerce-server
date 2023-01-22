@@ -18,6 +18,7 @@ app.use(cors()); //using cors
 
 app.use('/user', userRouter); //connect the router
 app.use('/category', categoryRouter); //connect the router
+app.use('/product', productRouter); //connect the router
 
 mongoose.set('strictQuery', true);
 mongoose
