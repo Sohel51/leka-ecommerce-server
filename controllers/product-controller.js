@@ -18,17 +18,26 @@ async function createProduct(req, res, next) {
         });
     }
 
-    return res.json(req.body);
-
     const {
         title,
-        parent,
+        category,
+        price,
+        discount,
+        discountPrice,
+        discountDate,
+        description,
     } = req.body;
 
     let newProduct = await new productModel({
         title,
-        parent,
-        creator: req.userData._id,
+        category,
+        price,
+        discount,
+        discountPrice,
+        discountDate,
+        description,
+        image: 'https://lh3.googleusercontent.com/ogw/AAEL6sh0WEhDDJQsqCy_4t2bEx5gfVbXTDaa186rBAMG0Q=s32-c-mo',
+        // creator: req.userData._id,
     }).save();
     res.status(201).json(newProduct)
 }
