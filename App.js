@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false })) //using bodyparser for view the data
 app.use(formData.parse()); //using parse
 app.use(cors()); //using cors
+app.use('/uploads/', express.static('uploads'));
 
 app.use('/user', userRouter); //connect the router
 app.use('/category', categoryRouter); //connect the router

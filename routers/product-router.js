@@ -19,7 +19,7 @@ router.post('/create', [
 
     check('image')
         .custom((value, { req }) => {
-            if (req.files.image.size <= 0) {
+            if (req.files.image.size == 0) {
                 return Promise.reject('Image is Required');
             } else {
                 return true;

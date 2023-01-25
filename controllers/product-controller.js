@@ -2,6 +2,8 @@ const {
     validationResult
 } = require('express-validator');
 const productModel = require('../models/productModel');
+const fs = require('fs-extra');
+const path = require('path');
 
 const allProduct = async (req, res, next) => {
     let products = await productModel.find()
@@ -28,6 +30,16 @@ async function createProduct(req, res, next) {
         description,
     } = req.body;
 
+    let file_name = '';
+    if (req.files) {
+        const images = req.files.image;
+        let image_name = images.name.split('.')[0];
+        let image_extension = images.name.split('.')[1];
+        file_name = 'uploads/products/' + image_name + '-' + parseInt(Math.random() * 10000) + Date.now() + '.' + image_extension;
+        const target_path = path.join(__dirname, '../') + "/" + file_name;
+        fs.copy(images.path, target_path);
+    }
+
     let newProduct = await new productModel({
         title,
         category,
@@ -36,13 +48,22 @@ async function createProduct(req, res, next) {
         discountPrice,
         discountDate,
         description,
-        image: 'https://lh3.googleusercontent.com/ogw/AAEL6sh0WEhDDJQsqCy_4t2bEx5gfVbXTDaa186rBAMG0Q=s32-c-mo',
+        image: file_name,
         // creator: req.userData._id,
     }).save();
     res.status(201).json(newProduct)
 }
 
 const getProduct = async (req, res, next) => {
+    let {
+        id
+    } = req.params;
+    let category = await productModel.findOne({
+        _id: id
+    })
+        .populate('category')
+        .populate('creator');
+    return res.status(200).json(category);
 }
 
 const updateProduct = async (req, res, next) => {
