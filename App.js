@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const app = express()
-const port = 5000
+const port = 3002
 const bodyParser = require('body-parser') //bodyParser
 const cors = require('cors'); //installing cors
 const formData = require('express-form-data'); //installing formData

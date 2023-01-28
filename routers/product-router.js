@@ -25,14 +25,37 @@ router.post('/create', [
                 return true;
             }
         }),
-    
-    check ('description')
+
+    check('description')
         .not().isEmpty().withMessage('Description is Required'),
 
 ], productController.createProduct)
 
 router.get('/get/:id', productController.getProduct)
-router.post('/update/:id', productController.updateProduct)
+router.post('/update',
+    [
+        check('title')
+            .not().isEmpty().withMessage('Title is Required'),
+
+        check('price')
+            .not().isEmpty().withMessage('Price is Required'),
+
+        check('category')
+            .not().isEmpty().withMessage('Category is Required'),
+
+        check('image')
+            .custom((value, { req }) => {
+                if (req.files.image.size == 0) {
+                    return Promise.reject('Image is Required');
+                } else {
+                    return true;
+                }
+            }),
+
+        check('description')
+            .not().isEmpty().withMessage('Description is Required'),
+
+    ], productController.updateProduct)
 router.get('/delete/:id', productController.deleteProduct)
 
 module.exports = router;

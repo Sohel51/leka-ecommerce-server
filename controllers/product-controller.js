@@ -66,7 +66,49 @@ const getProduct = async (req, res, next) => {
     return res.status(200).json(category);
 }
 
-const updateProduct = async (req, res, next) => {
+async function updateProduct(req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({
+            errors: errors.array()
+        });
+    }
+
+    const {
+        _id,
+        title,
+        category,
+        price,
+        discount,
+        discountPrice,
+        discountDate,
+        description,
+    } = req.body;
+
+    let file_name = '';
+    if (req.files) {
+        const images = req.files.image;
+        let image_name = images.name.split('.')[0];
+        let image_extension = images.name.split('.')[1];
+        file_name = 'uploads/products/' + image_name + '-' + parseInt(Math.random() * 10000) + Date.now() + '.' + image_extension;
+        const target_path = path.join(__dirname, '../') + "/" + file_name;
+        fs.copy(images.path, target_path);
+    }
+
+    let updatedProduct = await new productModel.updateOne({
+        _id
+    },{
+        title,
+        category,
+        price,
+        discount,
+        discountPrice,
+        discountDate,
+        description,
+        image: file_name,
+        // creator: req.userData._id,
+    }).save();
+    res.status(201).json(newProduct)
 }
 
 const deleteProduct = async (req, res, next) => {
