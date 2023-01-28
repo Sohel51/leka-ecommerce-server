@@ -43,19 +43,10 @@ router.post('/update',
         check('category')
             .not().isEmpty().withMessage('Category is Required'),
 
-        check('image')
-            .custom((value, { req }) => {
-                if (req.files.image.size == 0) {
-                    return Promise.reject('Image is Required');
-                } else {
-                    return true;
-                }
-            }),
-
         check('description')
             .not().isEmpty().withMessage('Description is Required'),
 
     ], productController.updateProduct)
-router.get('/delete/:id', productController.deleteProduct)
+router.post('/delete', productController.deleteProduct)
 
 module.exports = router;

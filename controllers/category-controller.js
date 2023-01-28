@@ -64,7 +64,7 @@ const deleteCategory = async (req, res, next) => {
   if (category.deletedCount) {
     return res.status(200).json('Data Deleted');
   } else {
-    return res.status(200).json({ msg: 'No Data Delete', category });
+    return res.status(400).json({ msg: 'No Data Delete', category });
   }
 
 }

@@ -87,17 +87,19 @@ async function updateProduct(req, res, next) {
 
     let file_name = '';
     if (req.files) {
-        const images = req.files.image;
-        let image_name = images.name.split('.')[0];
-        let image_extension = images.name.split('.')[1];
-        file_name = 'uploads/products/' + image_name + '-' + parseInt(Math.random() * 10000) + Date.now() + '.' + image_extension;
-        const target_path = path.join(__dirname, '../') + "/" + file_name;
-        fs.copy(images.path, target_path);
+        if (req.files?.image) {
+            const images = req.files.image;
+            let image_name = images.name.split('.')[0];
+            let image_extension = images.name.split('.')[1];
+            file_name = 'uploads/products/' + image_name + '-' + parseInt(Math.random() * 10000) + Date.now() + '.' + image_extension;
+            const target_path = path.join(__dirname, '../') + "/" + file_name;
+            fs.copy(images.path, target_path);
+        }
     }
 
-    let updatedProduct = await new productModel.updateOne({
+    let updatedProduct = await productModel.updateOne({
         _id
-    },{
+    }, {
         title,
         category,
         price,
@@ -107,11 +109,27 @@ async function updateProduct(req, res, next) {
         description,
         image: file_name,
         // creator: req.userData._id,
-    }).save();
-    res.status(201).json(newProduct)
+    });
+    res.status(201).json(updatedProduct)
 }
 
 const deleteProduct = async (req, res, next) => {
+    const {
+        id
+    } = req.body;
+
+    let category = await productModel.deleteOne({
+        _id: id
+    });
+
+    if (category.deletedCount) {
+        return res.status(200).json('Data Deleted')
+    }else{
+        return res.status(400).json({
+            msg: 'No Data Delete',
+            category
+        })
+    }
 }
 
 
