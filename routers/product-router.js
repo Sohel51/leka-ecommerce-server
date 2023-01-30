@@ -38,7 +38,7 @@ router.post('/update',
             .not().isEmpty().withMessage('Title is Required'),
 
         check('price')
-            .not().isEmpty().withMessage('Price is Required'),
+            .not().isEmpty().withMessage('Product Price is Required'),
 
         check('category')
             .not().isEmpty().withMessage('Category is Required'),
