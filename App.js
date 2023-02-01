@@ -17,6 +17,11 @@ app.use(formData.parse()); //using parse
 app.use(cors()); //using cors
 app.use('/uploads/', express.static('uploads'));
 
+app.get('/test', (req, res) => {
+ setTimeout(() => {
+  res.status(200).json('Got it')
+ }, 200);
+})
 app.use('/user', userRouter); //connect the router
 app.use('/category', categoryRouter); //connect the router
 app.use('/product', productRouter); //connect the router
