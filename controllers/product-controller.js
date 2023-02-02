@@ -2,6 +2,7 @@ const {
     validationResult
 } = require('express-validator');
 const productModel = require('../models/productModel');
+const moment = require('moment');
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -9,6 +10,18 @@ const allProduct = async (req, res, next) => {
     let products = await productModel.find()
         .populate('category')
         .populate('creator');
+    products = products.map(product => {
+        let today = new moment();
+        let product_discount_time = moment(product.discountDate);
+        let diff = product_discount_time.diff(today, 'minutes');
+        if (diff <= 0) {
+            product.discountPrice = null;
+            product.discountDate = null;
+            product.discount = null;
+        }
+
+        return product;
+    })
     return res.status(200).json(products);
 }
 
@@ -124,7 +137,7 @@ const deleteProduct = async (req, res, next) => {
 
     if (category.deletedCount) {
         return res.status(200).json('Data Deleted')
-    }else{
+    } else {
         return res.status(400).json({
             msg: 'No Data Delete',
             category
